@@ -12,7 +12,9 @@
     "devextreme": "23.2.3",
     "devextreme-vue": "23.2.3",
     "vue": "^3.3.11",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vuetify": "^3.4.10",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.2",

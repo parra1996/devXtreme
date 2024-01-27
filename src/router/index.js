@@ -14,6 +14,16 @@ const router = createRouter({
       name: 'empresas',
       component: () => import('../views/EmpresasVue.vue')
     },
+    {
+      path: '/tabla',
+      name: 'tabla',
+      component: () => import('../views/tablaPropia/TablaPropia.vue')
+    },
+    {
+      path: '/htmleditor',
+      name: 'htmleditor',
+      component: () => import('@/components/htmleditorvue/htmleditorvue.vue')
+    },
   ]
 });
 

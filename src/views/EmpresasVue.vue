@@ -1,131 +1,171 @@
 <template>
-    <DxDataGrid :columns="columns" :show-borders="true" :data-source=data />
+  <!-- <v-form>
+    <v-text-field
+      v-model="dName"
+      :rules="nameRules"
+      :counter="10"
+      label="file name please"
+      required
+      hide-details
+    ></v-text-field>
+  </v-form> -->
+  <!-- <br />
+  <div>
+    <button @click="exportToExcel">Exportar a Excel</button>
+  </div>
+  
+  <br /> -->
+
+  <v-date-picker v-if="abrirModalDesde" v-model="desde"></v-date-picker>
+  <v-date-picker v-if="abrirModalHasta" v-model="hasta"></v-date-picker>
+  <!-- {{ desde.toISOString().split("T")[0] }} -->
+  <!-- {{ hasta.toISOString().split("T")[0] }} -->
+  <button @click="abrirDesde()">desde</button> <br />
+  <button @click="abrirHasta()">Hasta</button>
+
+  <v-data-table :items="datosFiltrados" :headers="headers"> </v-data-table>
+
+  <button @click="calcularFecha">calcular</button> {{}}
+  <button @click="resetFecha">reset</button>
 </template>
 
-<script setup lang="ts">
-import DxDataGrid from 'devextreme-vue/data-grid';
+<script>
+import * as XLSX from "xlsx";
+import TablaSencilla from "@/components/TablaSencilla.vue";
+export default {
+  components: {
+    TablaSencilla,
+  },
+  data() {
+    return {
+      dName: "",
+      nameRules: [
+        (value) => {
+          if (value) return true;
 
-const data = [{
-    "ID": 1,
-    "CompanyName": "Premier Buy",
-    "Address": "7601 Penn Avenue South",
-    "City": "Richfield",
-    "State": "Minnesota",
-    "Zipcode": 55423,
-    "Phone": "(612) 291-1000",
-    "Fax": "(612) 291-2001",
-    "Website": "http://www.nowebsitepremierbuy.dx"
-}, {
-    "ID": 2,
-    "CompanyName": "ElectrixMax",
-    "Address": "263 Shuman Blvd",
-    "City": "Naperville",
-    "State": "Illinois",
-    "Zipcode": 60563,
-    "Phone": "(630) 438-7800",
-    "Fax": "(630) 438-7801",
-    "Website": "http://www.nowebsiteelectrixmax.dx"
-}, {
-    "ID": 3,
-    "CompanyName": "Video Emporium",
-    "Address": "1201 Elm Street",
-    "City": "Dallas",
-    "State": "Texas",
-    "Zipcode": 75270,
-    "Phone": "(214) 854-3000",
-    "Fax": "(214) 854-3001",
-    "Website": "http://www.nowebsitevideoemporium.dx"
-}, {
-    "ID": 4,
-    "CompanyName": "Screen Shop",
-    "Address": "1000 Lowes Blvd",
-    "City": "Mooresville",
-    "State": "North Carolina",
-    "Zipcode": 28117,
-    "Phone": "(800) 445-6937",
-    "Fax": "(800) 445-6938",
-    "Website": "http://www.nowebsitescreenshop.dx"
-}, {
-    "ID": 5,
-    "CompanyName": "Braeburn",
-    "Address": "1 Infinite Loop",
-    "City": "Cupertino",
-    "State": "California",
-    "Zipcode": 95014,
-    "Phone": "(408) 996-1010",
-    "Fax": "(408) 996-1012",
-    "Website": "http://www.nowebsitebraeburn.dx"
-}, {
-    "ID": 6,
-    "CompanyName": "PriceCo",
-    "Address": "30 Hunter Lane",
-    "City": "Camp Hill",
-    "State": "Pennsylvania",
-    "Zipcode": 17011,
-    "Phone": "(717) 761-2633",
-    "Fax": "(717) 761-2334",
-    "Website": "http://www.nowebsitepriceco.dx"
-}, {
-    "ID": 7,
-    "CompanyName": "Ultimate Gadget",
-    "Address": "1557 Watson Blvd",
-    "City": "Warner Robbins",
-    "State": "Georgia",
-    "Zipcode": 31093,
-    "Phone": "(995) 623-6785",
-    "Fax": "(995) 623-6786",
-    "Website": "http://www.nowebsiteultimategadget.dx"
-}, {
-    "ID": 8,
-    "CompanyName": "EZ Stop",
-    "Address": "618 Michillinda Ave.",
-    "City": "Arcadia",
-    "State": "California",
-    "Zipcode": 91007,
-    "Phone": "(626) 265-8632",
-    "Fax": "(626) 265-8633",
-    "Website": "http://www.nowebsiteezstop.dx"
-}, {
-    "ID": 9,
-    "CompanyName": "Clicker",
-    "Address": "1100 W. Artesia Blvd.",
-    "City": "Compton",
-    "State": "California",
-    "Zipcode": 90220,
-    "Phone": "(310) 884-9000",
-    "Fax": "(310) 884-9001",
-    "Website": "http://www.nowebsiteclicker.dx"
-}, {
-    "ID": 10,
-    "CompanyName": "Store of America",
-    "Address": "2401 Utah Ave. South",
-    "City": "Seattle",
-    "State": "Washington",
-    "Zipcode": 98134,
-    "Phone": "(206) 447-1575",
-    "Fax": "(206) 447-1576",
-    "Website": "http://www.nowebsiteamerica.dx"
-}, {
-    "ID": 11,
-    "CompanyName": "Zone Toys",
-    "Address": "1945 S Cienega Boulevard",
-    "City": "Los Angeles",
-    "State": "California",
-    "Zipcode": 90034,
-    "Phone": "(310) 237-5642",
-    "Fax": "(310) 237-5643",
-    "Website": "http://www.nowebsitezonetoys.dx"
-}, {
-    "ID": 12,
-    "CompanyName": "ACME",
-    "Address": "2525 E El Segundo Blvd",
-    "City": "El Segundo",
-    "State": "California",
-    "Zipcode": 90245,
-    "Phone": "(310) 536-0611",
-    "Fax": "(310) 536-0612",
-    "Website": "http://www.nowebsiteacme.dx"
-}]
+          return "A name is required.";
+        },
+      ],
+      items: [
+        {
+          nombre: "juan",
+          apellido: "parra",
+          nacionalidad: "venezuela",
+          edad: 27,
+          genero: "hombre",
+          fecha: "1996-02-14",
+        },
+        {
+          nombre: "pedro",
+          apellido: "parra",
+          nacionalidad: "venezuela",
+          edad: 55,
+          genero: "nose",
+          fecha: "1920-02-14",
+        },
+        {
+          nombre: "cate",
+          apellido: "de parra",
+          nacionalidad: "venezuela",
+          edad: 23,
+          genero: "mujer",
+          fecha: "2020-02-14",
+        },
+        {
+          nombre: "noe",
+          apellido: "carrasquero",
+          nacionalidad: "venezuela",
+          edad: 58,
+          genero: "hombre",
+          fecha: "2000-02-14",
+        },
+      ],
+      headers: [
+        {
+          title: "apodo",
+          // key: "nombre",
+          value: "nombre",
+        },
+        {
+          title: "apellido papu",
+          // key: "apellido",
+          value: "apellido",
+        },
+        {
+          title: " pancho o que",
+          // key: "apellido",
+          value: "nacionalidad",
+        },
+        {
+          title: "viejo o que",
+          // key: "apellido",
+          value: "edad",
+        },
+        {
+          title: "non binary y verga",
+          // key: "apellido",
+          value: "genero",
+        },
+        {
+          title: "fecha",
+          value: "fecha",
+        },
+      ],
+      abrirModalDesde: false,
+      abrirModalHasta: false,
+      desde: new Date(),
+      hasta: new Date(),
+      fechaFiltro: new Date(),
+      datosFiltrados: [],
+    };
+  },
+  watch: {
+    items() {
+      console.log("entramos al watch");
+    },
+  },
+  methods: {
+    exportToExcel() {
+      // Crear un libro de Excel
+      const ws = XLSX.utils.json_to_sheet(this.items);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Hoja1");
 
-const columns = ['CompanyName', 'City', 'State', 'Phone', 'Fax'];
+      // Crear un blob y descargar el archivo
+      XLSX.writeFile(wb, this.dName + ".xlsx");
+    },
+    getUserData(event) {
+      console.log(event, "ESTO ES EVENT");
+    },
+    abrirDesde(e) {
+      console.log(e);
+      this.abrirModalDesde = true;
+    },
+    abrirHasta() {
+      this.abrirModalHasta = true;
+    },
+    calcularFecha() {
+      // this.items.filter((item) => {
+      //   item.fecha >= this.desde && item.fecha <= this.hasta;
+      //   console.log(this.items);
+      // });
+      console.log(this.desde.toISOString().split("T")[0]);
+      let datos = this.items.filter(
+        (item) =>
+          item.fecha > this.desde.toISOString().split("T")[0] &&
+          item.fecha < this.hasta.toISOString().split("T")[0]
+      );
+      this.datosFiltrados = datos;
+      console.log(this.items);
+    },
+    resetFecha() {
+      this.desde = new Date();
+      this.hasta = new Date();
+      this.datosFiltrados = this.items;
+    },
+  },
+  mounted() {
+    this.datosFiltrados = this.items;
+  },
+};
 </script>
